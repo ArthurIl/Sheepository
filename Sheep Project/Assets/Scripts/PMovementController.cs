@@ -9,9 +9,6 @@ public class PMovementController : MonoBehaviour
 {
     bool moving = false;
 
-    public LayerMask blocMask;
-    public LayerMask sheepMask;
-
     public float normalMovementTime;
 
     void Update()
@@ -50,15 +47,15 @@ public class PMovementController : MonoBehaviour
     {
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position, direction, 1f, blocMask))
+        if (Physics.Raycast(transform.position, direction, 1f, LayerRefs.lR.blocMask))
         {
             StartCoroutine(BonkAgainstWall(direction));
         }
-        else if (Physics.Raycast(transform.position, direction, out hit, 1f, sheepMask))
+        else if (Physics.Raycast(transform.position, direction, out hit, 1f, LayerRefs.lR.sheepMask))
         {
             StartCoroutine(MoveTowardSheep(direction, hit.collider.GetComponentInParent<SheepController>()));
         }
-        else if(Physics.Raycast(transform.position + direction, Vector3.down, 1f, blocMask))
+        else if(Physics.Raycast(transform.position + direction, Vector3.down, 1f, LayerRefs.lR.blocMask + LayerRefs.lR.sheepMask))
         {
             StartCoroutine(NormalMove(direction));
         }
@@ -68,6 +65,8 @@ public class PMovementController : MonoBehaviour
         }
 
     }
+
+    #region Normal Moves
 
     IEnumerator NormalMove(Vector3 direction)
     {
@@ -137,7 +136,7 @@ public class PMovementController : MonoBehaviour
 
         transform.position = originalPosition + Vector3.down;
 
-        if (Physics.Raycast(transform.position, Vector3.down, 1f, blocMask))
+        if (Physics.Raycast(transform.position, Vector3.down, 1f, LayerRefs.lR.blocMask))
         {
             moving = false;
         }
@@ -146,6 +145,10 @@ public class PMovementController : MonoBehaviour
             StartCoroutine(FallUntilSomething());
         }
     }
+
+    #endregion
+
+    #region Element Interaction Moves
 
     IEnumerator MoveTowardSheep(Vector3 direction ,SheepController sheepMovingTowardTo)
     {
@@ -167,20 +170,47 @@ public class PMovementController : MonoBehaviour
 
         //Sheep Push Logic
 
+        bool sheepWillMove = true;
 
-        Destroy(sheepMovingTowardTo.gameObject);
-
-        for (float i = 0; i < normalMovementTime*6f / 8f; i += Time.fixedDeltaTime)
+        if(Physics.Raycast(sheepMovingTowardTo.transform.position, direction, 1f, LayerRefs.lR.blocMask))
         {
-            transform.position += direction * Time.fixedDeltaTime / normalMovementTime;
-
-            yield return new WaitForFixedUpdate();
+            sheepWillMove = false;
+        }
+        else
+        {
+            sheepWillMove = true;
         }
 
-        transform.position = originalPosition + direction;
+        sheepMovingTowardTo.ChooseMovement(direction);
+
+        if (sheepWillMove)
+        {
+            for (float i = 0; i < normalMovementTime * 6f / 8f; i += Time.fixedDeltaTime)
+            {
+                transform.position += direction * Time.fixedDeltaTime / normalMovementTime;
+
+                yield return new WaitForFixedUpdate();
+            }
+
+            transform.position = originalPosition + direction;
+        }
+        else
+        {
+            for (float i = 0; i < normalMovementTime * 6f / 8f; i += Time.fixedDeltaTime)
+            {
+                transform.position += direction * Time.fixedDeltaTime / normalMovementTime;
+                transform.position += Vector3.up * Time.fixedDeltaTime * 8f / (normalMovementTime * 6f);
+
+                yield return new WaitForFixedUpdate();
+            }
+
+            transform.position = originalPosition + direction + Vector3.up;
+        }
 
         moving = false;
 
         yield break;
     }
+
+    #endregion
 }
