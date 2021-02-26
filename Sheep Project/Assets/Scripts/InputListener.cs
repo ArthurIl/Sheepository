@@ -14,7 +14,6 @@ public class InputListener : MonoBehaviour
 
     public Vector2 swipeDirection;
 
-    public bool longSwipe = false;
     float swipeSince = 0;
 
     private void Awake()
@@ -29,7 +28,6 @@ public class InputListener : MonoBehaviour
             touchPositionBegin = Vector2.zero;
             swipeDirection = Vector2.zero;
             swipeSince = 0;
-            longSwipe = false;
             return;
         }
 
@@ -40,13 +38,11 @@ public class InputListener : MonoBehaviour
 
         if(Input.touches[0].phase == TouchPhase.Moved || Input.touches[0].phase == TouchPhase.Stationary)
         {
-            swipeDirection = (Input.touches[0].position - touchPositionBegin).normalized;
-
             swipeSince += Time.deltaTime;
 
-            if(swipeSince > 1f)
+            if ((Input.touches[0].position - touchPositionBegin).magnitude > 50f)
             {
-                longSwipe = true;
+                swipeDirection = (Input.touches[0].position - touchPositionBegin).normalized;
             }
         }
 
@@ -55,7 +51,6 @@ public class InputListener : MonoBehaviour
             touchPositionBegin = Vector2.zero;
             swipeDirection = Vector2.zero;
             swipeSince = 0;
-            longSwipe = false;
         }
     }
 }

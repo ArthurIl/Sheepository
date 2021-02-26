@@ -10,6 +10,10 @@ public class SheepController : MonoBehaviour
     [HideInInspector] public float angleOrientation;
     public float walkTime;
 
+    public Collider col;
+
+    public int fallSinceXCases;
+
     private void Start()
     {
         angleOrientation = Vector2.Angle(new Vector2(Vector3.forward.x, Vector3.forward.z), new Vector2(Mathf.Round(transform.forward.x), Mathf.Round(transform.forward.z)));
@@ -36,15 +40,17 @@ public class SheepController : MonoBehaviour
 
     public void MoveFrontBehindUntilSomething(Vector3 direction)
     {
+        Vector3 closestPoint = col.ClosestPoint(transform.position + direction);
+
         if (Physics.Raycast(transform.position, direction, 1f, LayerRefs.lR.blocMask))
         {
             StartCoroutine(BonkAgainstWall(direction));
         }
-        else if (Physics.Raycast(transform.position, direction, 1f, LayerRefs.lR.sheepMask))
+        else if (Physics.Raycast(closestPoint, direction, 0.5f, LayerRefs.lR.sheepMask))
         {
-            //Stack
+            StartCoroutine(MoveTowardSheepFB(direction));
         }
-        else if (Physics.Raycast(transform.position + direction, Vector3.down, 1f, LayerRefs.lR.blocMask))
+        else if (Physics.Raycast(transform.position + direction, Vector3.down, 1f, LayerRefs.lR.blocMask + LayerRefs.lR.sheepMask))
         {
             StartCoroutine(MoveFBThenMove(direction));
         }
@@ -52,7 +58,6 @@ public class SheepController : MonoBehaviour
         {
             StartCoroutine(MoveFBThenFall(direction));
         }
-
     }
 
     IEnumerator MoveFBThenMove(Vector3 direction)
@@ -102,11 +107,13 @@ public class SheepController : MonoBehaviour
 
         transform.position = originalPosition + direction;
 
-        StartCoroutine(FBFallUntilSomething(direction));
+        StartCoroutine(FBFallUntilSomething(direction, true));
     }
 
-    IEnumerator FBFallUntilSomething(Vector3 direction)
+    IEnumerator FBFallUntilSomething(Vector3 direction, bool bounce)
     {
+        fallSinceXCases += 1;
+
         Vector3 originalPosition = transform.position;
 
         for (float i = 0; i < walkTime / 2f; i += Time.fixedDeltaTime)
@@ -120,13 +127,103 @@ public class SheepController : MonoBehaviour
 
         if (Physics.Raycast(transform.position, Vector3.down, 1f, LayerRefs.lR.blocMask))
         {
+            fallSinceXCases = 0;
+
             MoveFrontBehindUntilSomething(direction);
+        }
+        else if (Physics.Raycast(col.ClosestPoint(transform.position + Vector3.down), Vector3.down, 0.5f, LayerRefs.lR.sheepMask))
+        {
+            if (bounce)
+                StartCoroutine(BounceBackFromSheepFB(direction, fallSinceXCases));
+
+            fallSinceXCases = 0;
         }
         else
         {
-            StartCoroutine(FBFallUntilSomething(direction));
+            StartCoroutine(FBFallUntilSomething(direction, bounce));
         }
     }
+
+    IEnumerator BounceBackFromSheepFB(Vector3 direction, int casesToGain)
+    {
+        while (casesToGain > 0 && (!Physics.Raycast(transform.position, Vector3.up, 1f, LayerRefs.lR.blocMask)))
+        {
+            casesToGain -= 1;
+
+            Vector3 originalPosition = transform.position;
+
+            for (float i = 0; i < walkTime / 4f; i += Time.fixedDeltaTime)
+            {
+                transform.position += Vector3.up * Time.fixedDeltaTime * 4f / (walkTime);
+
+                yield return new WaitForFixedUpdate();
+            }
+
+            transform.position = originalPosition + Vector3.up;
+        }
+
+        if (Physics.Raycast(transform.position, direction, 1f, LayerRefs.lR.blocMask + LayerRefs.lR.sheepMask))
+        {
+            StartCoroutine(FBFallUntilSomething(direction, false));
+        }
+        else
+        {
+            Vector3 originalPosition = transform.position;
+
+            for (float i = 0; i < walkTime / 4f; i += Time.fixedDeltaTime)
+            {
+                transform.position += direction * Time.fixedDeltaTime * 2f / walkTime;
+                transform.position += Vector3.up * Time.fixedDeltaTime * 2f / (walkTime);
+
+                yield return new WaitForFixedUpdate();
+            }
+
+            for (float i = 0; i < walkTime / 4f; i += Time.fixedDeltaTime)
+            {
+                transform.position += direction * Time.fixedDeltaTime * 2f / walkTime;
+                transform.position -= Vector3.up * Time.fixedDeltaTime * 2f / (walkTime);
+
+                yield return new WaitForFixedUpdate();
+            }
+
+            transform.position = originalPosition + direction;
+
+            if (!Physics.Raycast(transform.position, Vector3.down, 1f, LayerRefs.lR.blocMask + LayerRefs.lR.sheepMask))
+            {
+                StartCoroutine(FBFallUntilSomething(direction, true));
+            }
+            else
+            {
+                MoveFrontBehindUntilSomething(direction);
+            }
+        }
+    }
+
+    IEnumerator MoveTowardSheepFB(Vector3 direction)
+    {
+        Vector3 originalPosition = transform.position;
+
+        for (float i = 0; i < walkTime / 2f; i += Time.fixedDeltaTime)
+        {
+            transform.position += direction * Time.fixedDeltaTime / walkTime;
+            transform.position += Vector3.up * Time.fixedDeltaTime*2.5f / walkTime;
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        for (float i = 0; i < walkTime / 2f; i += Time.fixedDeltaTime)
+        {
+            transform.position += direction * Time.fixedDeltaTime / walkTime;
+            transform.position -= Vector3.up * Time.fixedDeltaTime * 0.5f / walkTime;
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        transform.position = originalPosition + direction + Vector3.up;
+
+        MoveFrontBehindUntilSomething(direction);
+    }
+
 
     #endregion
 
@@ -134,18 +231,27 @@ public class SheepController : MonoBehaviour
 
     public void MoveSide(Vector3 direction)
     {
+        Vector3 closestPoint = col.ClosestPoint(transform.position + direction);
+
         if (Physics.Raycast(transform.position, direction, 1f, LayerRefs.lR.blocMask))
         {
             StartCoroutine(BonkAgainstWall(direction));
         }
-        else if (Physics.Raycast(transform.position, direction, 1f, LayerRefs.lR.sheepMask))
+        else if (Physics.Raycast(closestPoint, direction, 0.5f, LayerRefs.lR.sheepMask))
         {
-            //Stack
+            if (!Physics.Raycast(transform.position, Vector3.up, 1f, LayerRefs.lR.blocMask) && !Physics.Raycast(transform.position + Vector3.up, direction, 1f, LayerRefs.lR.blocMask + LayerRefs.lR.sheepMask))
+            {
+                StartCoroutine(MoveTowardSheepS(direction));
+            }
+            else
+            {
+                StartCoroutine(BonkAgainstWall(direction));
+            }
         }
-        else if (Physics.Raycast(transform.position + direction, Vector3.down, 1f, LayerRefs.lR.sheepMask))
+        /*else if (Physics.Raycast(transform.position + direction, Vector3.down, 1f, LayerRefs.lR.sheepMask))
         {
             //StackLevel+1
-        }
+        }*/
         else if (Physics.Raycast(transform.position + direction, Vector3.down, 1f, LayerRefs.lR.blocMask))
         {
             StartCoroutine(MoveSNormal(direction));
@@ -203,11 +309,13 @@ public class SheepController : MonoBehaviour
 
         transform.position = originalPosition + direction;
 
-        StartCoroutine(SFallUntilSomething());
+        StartCoroutine(SFallUntilSomething(direction, true));
     }
 
-    IEnumerator SFallUntilSomething()
+    IEnumerator SFallUntilSomething(Vector3 direction, bool bounce)
     {
+        fallSinceXCases += 1;
+
         Vector3 originalPosition = transform.position;
 
         for (float i = 0; i < walkTime / 2f; i += Time.fixedDeltaTime)
@@ -219,10 +327,95 @@ public class SheepController : MonoBehaviour
 
         transform.position = originalPosition + Vector3.down;
 
-        if (!Physics.Raycast(transform.position, Vector3.down, 1f, LayerRefs.lR.blocMask))
+        if (Physics.Raycast(col.ClosestPoint(transform.position + Vector3.down), Vector3.down, 0.5f, LayerRefs.lR.sheepMask))
         {
-            StartCoroutine(SFallUntilSomething());
+            if(bounce)
+                StartCoroutine(BounceBackFromSheepS(direction, fallSinceXCases));
+
+            fallSinceXCases = 0;
         }
+        else if (!Physics.Raycast(transform.position, Vector3.down, 1f, LayerRefs.lR.blocMask))
+        {
+            StartCoroutine(SFallUntilSomething(direction, bounce));
+        }
+        else
+        {
+            fallSinceXCases = 0;
+        }
+    }
+
+    IEnumerator BounceBackFromSheepS(Vector3 direction, int casesToGain)
+    {
+        while (casesToGain > 0 && (!Physics.Raycast(transform.position, Vector3.up, 1f, LayerRefs.lR.blocMask)))
+        {
+            casesToGain -= 1;
+
+            Vector3 originalPosition = transform.position;
+
+            for (float i = 0; i < walkTime / 4f; i += Time.fixedDeltaTime)
+            {
+                transform.position += Vector3.up * Time.fixedDeltaTime * 4f / (walkTime);
+
+                yield return new WaitForFixedUpdate();
+            }
+
+            transform.position = originalPosition + Vector3.up;
+        }
+
+        if (Physics.Raycast(transform.position, direction, 1f, LayerRefs.lR.blocMask + LayerRefs.lR.sheepMask))
+        {
+            StartCoroutine(SFallUntilSomething(direction, false));
+        }
+        else
+        {
+            Vector3 originalPosition = transform.position;
+
+            for (float i = 0; i < walkTime / 4f; i += Time.fixedDeltaTime)
+            {
+                transform.position += direction * Time.fixedDeltaTime * 2f / walkTime;
+                transform.position += Vector3.up * Time.fixedDeltaTime * 2f / (walkTime);
+
+                yield return new WaitForFixedUpdate();
+            }
+
+            for (float i = 0; i < walkTime / 4f; i += Time.fixedDeltaTime)
+            {
+                transform.position += direction * Time.fixedDeltaTime * 2f / walkTime;
+                transform.position -= Vector3.up * Time.fixedDeltaTime * 2f / (walkTime);
+
+                yield return new WaitForFixedUpdate();
+            }
+
+            transform.position = originalPosition + direction;
+
+            if (!Physics.Raycast(transform.position, Vector3.down, 1f, LayerRefs.lR.blocMask + LayerRefs.lR.sheepMask))
+            {
+                StartCoroutine(SFallUntilSomething(direction, true));
+            }
+        }
+    }
+
+    IEnumerator MoveTowardSheepS(Vector3 direction)
+    {
+        Vector3 originalPosition = transform.position;
+
+        for (float i = 0; i < walkTime / 2f; i += Time.fixedDeltaTime)
+        {
+            transform.position += direction * Time.fixedDeltaTime / walkTime;
+            transform.position += Vector3.up * Time.fixedDeltaTime * 2.25f / walkTime;
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        for (float i = 0; i < walkTime / 2f; i += Time.fixedDeltaTime)
+        {
+            transform.position += direction * Time.fixedDeltaTime / walkTime;
+            transform.position -= Vector3.up * Time.fixedDeltaTime * 0.25f / walkTime;
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        transform.position = originalPosition + direction + Vector3.up;
     }
 
     #endregion
