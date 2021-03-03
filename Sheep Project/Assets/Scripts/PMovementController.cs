@@ -55,7 +55,7 @@ public class PMovementController : MonoBehaviour
         }
         else if (Physics.Raycast(transform.position, direction, out hit, 1f, LayerRefs.lR.sheepMask))
         {
-            if (!Physics.Raycast(transform.position, Vector3.up, 1f, LayerRefs.lR.blocMask) && !Physics.Raycast(transform.position + Vector3.up, direction, 1f, LayerRefs.lR.blocMask + LayerRefs.lR.sheepMask))
+            if (!Physics.Raycast(transform.position, Vector3.up, 1f, LayerRefs.lR.blocMask) && !Physics.Raycast(transform.position + Vector3.up, direction, 1f, LayerRefs.lR.blocMask))
             {
                 StartCoroutine(MoveTowardSheep(direction, hit.collider.GetComponentInParent<SheepController>()));
             }
@@ -199,6 +199,8 @@ public class PMovementController : MonoBehaviour
 
         bool sheepWillMove = true;
 
+
+
         if(Physics.Raycast(sheepMovingTowardTo.transform.position, direction, 1f, LayerRefs.lR.blocMask))
         {
             sheepWillMove = false;
@@ -223,15 +225,29 @@ public class PMovementController : MonoBehaviour
         }
         else
         {
-            for (float i = 0; i < normalMovementTime * 6f / 8f; i += Time.fixedDeltaTime)
+            if (Physics.Raycast(transform.position + Vector3.up, direction, 1f, LayerRefs.lR.sheepMask))
             {
-                transform.position += direction * Time.fixedDeltaTime / normalMovementTime;
-                transform.position += Vector3.up * Time.fixedDeltaTime * 8f / (normalMovementTime * 6f);
+                for (float i = 0; i < normalMovementTime * 3f / 8f; i += Time.fixedDeltaTime)
+                {
+                    transform.position -= direction * Time.fixedDeltaTime / normalMovementTime;
 
-                yield return new WaitForFixedUpdate();
+                    yield return new WaitForFixedUpdate();
+                }
+
+                transform.position = originalPosition;
             }
+            else
+            {
+                for (float i = 0; i < normalMovementTime * 6f / 8f; i += Time.fixedDeltaTime)
+                {
+                    transform.position += direction * Time.fixedDeltaTime / normalMovementTime;
+                    transform.position += Vector3.up * Time.fixedDeltaTime * 8f / (normalMovementTime * 6f);
 
-            transform.position = originalPosition + direction + Vector3.up;
+                    yield return new WaitForFixedUpdate();
+                }
+
+                transform.position = originalPosition + direction + Vector3.up;
+            }
         }
 
         moving = false;

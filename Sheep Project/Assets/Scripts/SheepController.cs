@@ -14,6 +14,8 @@ public class SheepController : MonoBehaviour
 
     public int fallSinceXCases;
 
+    public SheepController childSheep;
+
     private void Start()
     {
         angleOrientation = Vector2.Angle(new Vector2(Vector3.forward.x, Vector3.forward.z), new Vector2(Mathf.Round(transform.forward.x), Mathf.Round(transform.forward.z)));
@@ -26,6 +28,8 @@ public class SheepController : MonoBehaviour
 
     public void ChooseMovement(Vector3 direction)
     {
+        ParentEverySheep(this);
+
         if (direction == transform.forward || direction == -transform.forward)
         {
             MoveFrontBehindUntilSomething(direction);
@@ -33,6 +37,38 @@ public class SheepController : MonoBehaviour
         else
         {
             MoveSide(direction);
+        }
+    }
+
+    public void ParentEverySheep(SheepController sheepToParent)
+    {
+        sheepToParent.transform.SetParent(transform);
+
+        Vector3 closestPoint;
+
+        RaycastHit hit;
+
+        closestPoint = col.ClosestPoint(transform.position + Vector3.up);
+
+        if (Physics.Raycast(closestPoint, Vector3.up, out hit, 0.5f, LayerRefs.lR.sheepMask))
+        {
+            sheepToParent.ParentEverySheep(hit.transform.parent.GetComponent<SheepController>());
+        }
+    }
+
+    public void UnParentEverySheep(SheepController sheepToParent)
+    {
+        sheepToParent.transform.SetParent(null);
+
+        Vector3 closestPoint;
+
+        RaycastHit hit;
+
+        closestPoint = col.ClosestPoint(transform.position + Vector3.up);
+
+        if (Physics.Raycast(closestPoint, Vector3.up, out hit, 0.5f, LayerRefs.lR.sheepMask))
+        {
+            sheepToParent.UnParentEverySheep(hit.transform.parent.GetComponent<SheepController>());
         }
     }
 
@@ -48,7 +84,10 @@ public class SheepController : MonoBehaviour
         }
         else if (Physics.Raycast(closestPoint, direction, 0.5f, LayerRefs.lR.sheepMask))
         {
-            StartCoroutine(MoveTowardSheepFB(direction));
+            if (!Physics.Raycast(transform.position + Vector3.up, direction, 1f, LayerRefs.lR.blocMask + LayerRefs.lR.sheepMask))
+                StartCoroutine(MoveTowardSheepFB(direction));
+            else
+                UnParentEverySheep(this);
         }
         else if (Physics.Raycast(transform.position + direction, Vector3.down, 1f, LayerRefs.lR.blocMask + LayerRefs.lR.sheepMask))
         {
@@ -135,6 +174,8 @@ public class SheepController : MonoBehaviour
         {
             if (bounce)
                 StartCoroutine(BounceBackFromSheepFB(direction, fallSinceXCases));
+            else
+                UnParentEverySheep(this);
 
             fallSinceXCases = 0;
         }
@@ -248,11 +289,7 @@ public class SheepController : MonoBehaviour
                 StartCoroutine(BonkAgainstWall(direction));
             }
         }
-        /*else if (Physics.Raycast(transform.position + direction, Vector3.down, 1f, LayerRefs.lR.sheepMask))
-        {
-            //StackLevel+1
-        }*/
-        else if (Physics.Raycast(transform.position + direction, Vector3.down, 1f, LayerRefs.lR.blocMask))
+        else if (Physics.Raycast(transform.position + direction, Vector3.down, 1f, LayerRefs.lR.blocMask + LayerRefs.lR.sheepMask))
         {
             StartCoroutine(MoveSNormal(direction));
         }
@@ -282,9 +319,9 @@ public class SheepController : MonoBehaviour
             yield return new WaitForFixedUpdate();
         }
 
-
-
         transform.position = originalPosition + direction;
+
+        UnParentEverySheep(this);
     }
 
     IEnumerator MoveSThenFall(Vector3 direction)
@@ -331,6 +368,8 @@ public class SheepController : MonoBehaviour
         {
             if(bounce)
                 StartCoroutine(BounceBackFromSheepS(direction, fallSinceXCases));
+            else
+                UnParentEverySheep(this);
 
             fallSinceXCases = 0;
         }
@@ -392,6 +431,10 @@ public class SheepController : MonoBehaviour
             {
                 StartCoroutine(SFallUntilSomething(direction, true));
             }
+            else
+            {
+                UnParentEverySheep(this);
+            }
         }
     }
 
@@ -416,6 +459,8 @@ public class SheepController : MonoBehaviour
         }
 
         transform.position = originalPosition + direction + Vector3.up;
+
+        UnParentEverySheep(this);
     }
 
     #endregion
@@ -439,5 +484,7 @@ public class SheepController : MonoBehaviour
         }
 
         transform.position = originalPosition;
+
+        UnParentEverySheep(this);
     }
 }
