@@ -52,5 +52,12 @@ public class InputListener : MonoBehaviour
             swipeDirection = Vector2.zero;
             swipeSince = 0;
         }
+
+        /*Vector2 keyboardInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+
+        if(keyboardInput.magnitude > 0f)
+        {
+            swipeDirection = keyboardInput;
+        }*/
     }
 }

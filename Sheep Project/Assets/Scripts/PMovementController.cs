@@ -199,15 +199,25 @@ public class PMovementController : MonoBehaviour
 
         bool sheepWillMove = true;
 
+        RaycastHit hit;
 
+        if(Physics.Raycast(sheepMovingTowardTo.transform.position, Vector3.up, out hit, 1f, LayerRefs.lR.sheepMask))
+        {
+            Vector3 closestPoint = hit.transform.GetComponent<SheepController>().col.ClosestPoint(hit.transform.position + direction);
 
-        if(Physics.Raycast(sheepMovingTowardTo.transform.position, direction, 1f, LayerRefs.lR.blocMask))
+            if (Physics.Raycast(closestPoint, direction, 0.5f, LayerRefs.lR.sheepMask))
+            {
+                sheepWillMove = false;
+            }
+        }
+        else if (Physics.Raycast(sheepMovingTowardTo.transform.position + Vector3.up, direction, 1f, LayerRefs.lR.sheepMask))
         {
             sheepWillMove = false;
         }
-        else
+
+        if (Physics.Raycast(sheepMovingTowardTo.transform.position, direction, 1f, LayerRefs.lR.blocMask))
         {
-            sheepWillMove = true;
+            sheepWillMove = false;
         }
 
         sheepMovingTowardTo.ChooseMovement(direction);
