@@ -148,14 +148,36 @@ public class PMovementController : MonoBehaviour
 
         transform.position = originalPosition + Vector3.down;
 
+        RaycastHit hit;
+
         if (Physics.Raycast(transform.position, Vector3.down, 1f, LayerRefs.lR.blocMask))
         {
             fallingSinceXCases = 0;
 
             moving = false;
         }
-        else if(Physics.Raycast(transform.position, Vector3.down, 1f, LayerRefs.lR.sheepMask))
+        else if(Physics.Raycast(transform.position, Vector3.down, out hit, 1f, LayerRefs.lR.sheepMask))
         {
+            bool sheepDown = true;
+
+            while(sheepDown == true)
+            {
+                if(hit.transform != null)
+                {
+                    SheepController sc = hit.transform.parent.GetComponent<SheepController>();
+
+                    if (sc != null)
+                    {
+                        if (Physics.Raycast(sc.col.ClosestPoint(sc.transform.position + Vector3.down), Vector3.down, out hit, 0.5f, LayerRefs.lR.sheepMask))
+                            fallingSinceXCases++;
+                    }
+                }
+                else
+                {
+                    sheepDown = false;
+                }
+            }
+
             if(bounce)
             {
                 StartCoroutine(BounceBackFromSheep(direction, fallingSinceXCases));
@@ -203,11 +225,16 @@ public class PMovementController : MonoBehaviour
 
         if(Physics.Raycast(sheepMovingTowardTo.transform.position, Vector3.up, out hit, 1f, LayerRefs.lR.sheepMask))
         {
-            Vector3 closestPoint = hit.transform.GetComponent<SheepController>().col.ClosestPoint(hit.transform.position + direction);
+            SheepController sc = hit.transform.GetComponent<SheepController>();
 
-            if (Physics.Raycast(closestPoint, direction, 0.5f, LayerRefs.lR.sheepMask))
+            if(sc != null)
             {
-                sheepWillMove = false;
+                Vector3 closestPoint = hit.transform.GetComponent<SheepController>().col.ClosestPoint(hit.transform.position + direction);
+
+                if (Physics.Raycast(closestPoint, direction, 0.5f, LayerRefs.lR.sheepMask))
+                {
+                    sheepWillMove = false;
+                }
             }
         }
         else if (Physics.Raycast(sheepMovingTowardTo.transform.position + Vector3.up, direction, 1f, LayerRefs.lR.sheepMask))

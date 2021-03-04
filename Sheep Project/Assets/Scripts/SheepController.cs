@@ -164,14 +164,36 @@ public class SheepController : MonoBehaviour
 
         transform.position = originalPosition + Vector3.down;
 
+        RaycastHit hit;
+
         if (Physics.Raycast(transform.position, Vector3.down, 1f, LayerRefs.lR.blocMask))
         {
             fallSinceXCases = 0;
 
             MoveFrontBehindUntilSomething(direction);
         }
-        else if (Physics.Raycast(col.ClosestPoint(transform.position + Vector3.down), Vector3.down, 0.5f, LayerRefs.lR.sheepMask))
+        else if (Physics.Raycast(col.ClosestPoint(transform.position + Vector3.down), Vector3.down, out hit, 0.5f, LayerRefs.lR.sheepMask))
         {
+            bool sheepDown = true;
+
+            while (sheepDown == true)
+            {
+                if (hit.transform != null)
+                {
+                    SheepController sc = hit.transform.parent.GetComponent<SheepController>();
+
+                    if (sc != null)
+                    {
+                        if (Physics.Raycast(sc.col.ClosestPoint(sc.transform.position + Vector3.down), Vector3.down, out hit, 0.5f, LayerRefs.lR.sheepMask))
+                            fallSinceXCases++;
+                    }
+                }
+                else
+                {
+                    sheepDown = false;
+                }
+            }
+
             if (bounce)
                 StartCoroutine(BounceBackFromSheepFB(direction, fallSinceXCases));
             else
@@ -364,9 +386,31 @@ public class SheepController : MonoBehaviour
 
         transform.position = originalPosition + Vector3.down;
 
-        if (Physics.Raycast(col.ClosestPoint(transform.position + Vector3.down), Vector3.down, 0.5f, LayerRefs.lR.sheepMask))
+        RaycastHit hit;
+
+        if (Physics.Raycast(col.ClosestPoint(transform.position + Vector3.down), Vector3.down, out hit, 0.5f, LayerRefs.lR.sheepMask))
         {
-            if(bounce)
+            bool sheepDown = true;
+
+            while (sheepDown == true)
+            {
+                if (hit.transform != null)
+                {
+                    SheepController sc = hit.transform.parent.GetComponent<SheepController>();
+
+                    if (sc != null)
+                    {
+                        if (Physics.Raycast(sc.col.ClosestPoint(sc.transform.position + Vector3.down), Vector3.down, out hit, 0.5f, LayerRefs.lR.sheepMask))
+                            fallSinceXCases++;
+                    }
+                }
+                else
+                {
+                    sheepDown = false;
+                }
+            }
+
+            if (bounce)
                 StartCoroutine(BounceBackFromSheepS(direction, fallSinceXCases));
             else
                 UnParentEverySheep(this);
