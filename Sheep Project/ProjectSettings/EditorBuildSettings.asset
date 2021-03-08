@@ -8,4 +8,34 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Scenes/Build/PreProdTestLDs/FirstScene.unity
     guid: 53e45ccf6662f724182ec75197101901
+  - enabled: 1
+    path: Assets/_Scenes/Dev/AUM_WorkScene.unity
+    guid: 63f2586e6d5efb044a5e3d8a5c9a0473
+  - enabled: 1
+    path: Assets/_Scenes/Dev/Arthur/LDTutoPousserMouton.unity
+    guid: acfeca6d34d946843a559147d3d60f1e
+  - enabled: 1
+    path: Assets/_Scenes/Dev/Arthur/LDTutoPousserMoutonEtPlateforme.unity
+    guid: a5ba8b1e73500204d8399113f45cd192
+  - enabled: 1
+    path: Assets/_Scenes/Dev/Arthur/LDTutoArretMouton.unity
+    guid: c94dc1f4b1d54cb45802e6fc7ede7fa0
+  - enabled: 1
+    path: Assets/_Scenes/Dev/Arthur/LDTutoStackCreation.unity
+    guid: 2077e2bbf53334549a246f048425d1d4
+  - enabled: 1
+    path: Assets/_Scenes/Dev/Arthur/LDTutoStackBlockage.unity
+    guid: 46e316864c397aa4886953f843804923
+  - enabled: 1
+    path: Assets/_Scenes/Dev/Arthur/LDTutoStackStop.unity
+    guid: b208254fc54e53848837e49f08535895
+  - enabled: 1
+    path: Assets/_Scenes/Dev/Arthur/LDTutoStackvenuhaut.unity
+    guid: f2578cb145480184ab82140d5a844d6f
+  - enabled: 1
+    path: Assets/_Scenes/Dev/Arthur/LDTutoRebondsurMouton.unity
+    guid: 5d25c7f4316792642907f2c3eac7a8f5
+  - enabled: 1
+    path: Assets/_Scenes/Dev/Arthur/LDTutoRebondStackComportementSortie.unity
+    guid: 369acfc1d648b4a46a6959fcbbedd2b7
   m_configObjects: {}

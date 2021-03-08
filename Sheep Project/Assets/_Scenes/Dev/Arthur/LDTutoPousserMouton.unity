@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -390,84 +390,79 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2045511773}
-  m_LocalRotation: {x: 0.30130795, y: -0.24590467, z: 0.080735214, w: 0.9177289}
-  m_LocalPosition: {x: 9.39, y: 9.38, z: -4.09}
+  m_LocalRotation: {x: 0.28540975, y: -0.3834094, z: 0.12588064, w: 0.86930585}
+  m_LocalPosition: {x: 13.08, y: 9.38, z: -1.47}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 36.352, y: -30, z: 0}
---- !u!1001 &7636642295885854167
+  m_LocalEulerAnglesHint: {x: 36.352, y: -47.6, z: 0}
+--- !u!1001 &6215758928312883742
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2942414249439262104, guid: 5b606c647f5742147899fdcd47915af5,
+    - target: {fileID: 3207868685569784318, guid: 0ca665d97291b5b48b98a086c0e76cc7,
         type: 3}
       propertyPath: m_RootOrder
       value: 3
       objectReference: {fileID: 0}
-    - target: {fileID: 2942414249439262104, guid: 5b606c647f5742147899fdcd47915af5,
+    - target: {fileID: 3207868685569784318, guid: 0ca665d97291b5b48b98a086c0e76cc7,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -1.5
       objectReference: {fileID: 0}
-    - target: {fileID: 2942414249439262104, guid: 5b606c647f5742147899fdcd47915af5,
+    - target: {fileID: 3207868685569784318, guid: 0ca665d97291b5b48b98a086c0e76cc7,
         type: 3}
       propertyPath: m_LocalPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2942414249439262104, guid: 5b606c647f5742147899fdcd47915af5,
+    - target: {fileID: 3207868685569784318, guid: 0ca665d97291b5b48b98a086c0e76cc7,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -1.1
       objectReference: {fileID: 0}
-    - target: {fileID: 2942414249439262104, guid: 5b606c647f5742147899fdcd47915af5,
+    - target: {fileID: 3207868685569784318, guid: 0ca665d97291b5b48b98a086c0e76cc7,
         type: 3}
       propertyPath: m_LocalRotation.w
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 2942414249439262104, guid: 5b606c647f5742147899fdcd47915af5,
+    - target: {fileID: 3207868685569784318, guid: 0ca665d97291b5b48b98a086c0e76cc7,
         type: 3}
       propertyPath: m_LocalRotation.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2942414249439262104, guid: 5b606c647f5742147899fdcd47915af5,
+    - target: {fileID: 3207868685569784318, guid: 0ca665d97291b5b48b98a086c0e76cc7,
         type: 3}
       propertyPath: m_LocalRotation.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2942414249439262104, guid: 5b606c647f5742147899fdcd47915af5,
+    - target: {fileID: 3207868685569784318, guid: 0ca665d97291b5b48b98a086c0e76cc7,
         type: 3}
       propertyPath: m_LocalRotation.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2942414249439262104, guid: 5b606c647f5742147899fdcd47915af5,
+    - target: {fileID: 3207868685569784318, guid: 0ca665d97291b5b48b98a086c0e76cc7,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2942414249439262104, guid: 5b606c647f5742147899fdcd47915af5,
+    - target: {fileID: 3207868685569784318, guid: 0ca665d97291b5b48b98a086c0e76cc7,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2942414249439262104, guid: 5b606c647f5742147899fdcd47915af5,
+    - target: {fileID: 3207868685569784318, guid: 0ca665d97291b5b48b98a086c0e76cc7,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3816152414488512940, guid: 5b606c647f5742147899fdcd47915af5,
+    - target: {fileID: 5237847969919633253, guid: 0ca665d97291b5b48b98a086c0e76cc7,
         type: 3}
       propertyPath: m_Name
-      value: TutoStack
-      objectReference: {fileID: 0}
-    - target: {fileID: 3816152414488512940, guid: 5b606c647f5742147899fdcd47915af5,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
+      value: Tutoriel pousser le mouton et monter dessus
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 5b606c647f5742147899fdcd47915af5, type: 3}
+  m_SourcePrefab: {fileID: 100100000, guid: 0ca665d97291b5b48b98a086c0e76cc7, type: 3}
