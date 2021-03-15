@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// Aurélien
@@ -12,6 +10,7 @@ public class LayerRefs : MonoBehaviour
 
     public LayerMask blocMask;
     public LayerMask sheepMask;
+    public LayerMask slopeMask;
 
     private void Awake()
     {

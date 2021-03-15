@@ -42,10 +42,13 @@ public class PMovementController : MonoBehaviour
 
         Vector3 directionConverted = new Vector3(direction.x, 0f, direction.y);
 
-        DetectAroundInDirection(directionConverted);
+        if (Physics.Raycast(transform.position, Vector3.down, 1f, LayerRefs.lR.slopeMask))
+            NormalDetectAroundInDirection(directionConverted);
+        else
+            SlopeDetectAroundInDirection(directionConverted);
     }
 
-    void DetectAroundInDirection(Vector3 direction)
+    void NormalDetectAroundInDirection(Vector3 direction)
     {
         RaycastHit hit;
 
@@ -75,6 +78,39 @@ public class PMovementController : MonoBehaviour
         }
 
     }
+
+    void SlopeDetectAroundInDirection(Vector3 direction)
+    {
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, direction, 1f, LayerRefs.lR.blocMask))
+        {
+            StartCoroutine(BonkAgainstWall(direction));
+        }
+        else if (Physics.Raycast(transform.position, direction, out hit, 1f, LayerRefs.lR.sheepMask))
+        {
+            if (!Physics.Raycast(transform.position, Vector3.up, 1f, LayerRefs.lR.blocMask) && !Physics.Raycast(transform.position + Vector3.up, direction, 1f, LayerRefs.lR.blocMask))
+            {
+                StartCoroutine(MoveTowardSheep(direction, hit.collider.GetComponentInParent<SheepController>()));
+            }
+            else
+            {
+                StartCoroutine(BonkAgainstWall(direction));
+            }
+
+        }
+        else if (Physics.Raycast(transform.position + direction, Vector3.down, 1f, LayerRefs.lR.blocMask + LayerRefs.lR.sheepMask))
+        {
+            StartCoroutine(NormalMove(direction));
+        }
+        else
+        {
+            StartCoroutine(MoveThenFall(direction));
+        }
+
+    }
+
+    #region From Normal Block
 
     #region Normal Moves
 
@@ -349,6 +385,14 @@ public class PMovementController : MonoBehaviour
 
         
     }
+
+    #endregion
+
+    #endregion
+
+    #region From Slope Block
+
+
 
     #endregion
 }
