@@ -2,8 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.Presets;
+using System;
+using Object = UnityEngine.Object;
+using UnityEngine.UIElements;
+using UnityEditor.IMGUI;
 
-[System.Serializable]
+[Serializable]
 public class VoxelToolWindow : EditorWindow
 {
 
@@ -58,11 +63,16 @@ public class VoxelToolWindow : EditorWindow
 
     //Editor
     public GUIStyle style = GUIStyle.none;
-    
+    static Object[] presetTarget = new Object[1];
+    Color currentColor;
+    static VisualElement root;
+    static Rect rect;
+    static VoxelToolWindow window;
+
 
     //Input variables
     public Sprite spr;
-    [SerializeField]public int width;
+    [SerializeField] public int width;
     public int length;
     public int modelHeight;
 
@@ -76,12 +86,12 @@ public class VoxelToolWindow : EditorWindow
     private bool fold_1;
     private bool fold_2;
 
-    [SerializeField]public List<GameObject> uniqueObjectsReferences = new List<GameObject>();
-    [SerializeField]public List<Color> uniqueObjectsColorReferences = new List<Color>();
+    [SerializeField] public List<GameObject> uniqueObjectsReferences = new List<GameObject>();
+    [SerializeField] public List<Color> uniqueObjectsColorReferences = new List<Color>();
 
-    [SerializeField]public List<GameObject> terrainReferences = new List<GameObject>();
-    [SerializeField]public List<Color> terrainColorReferences = new List<Color>();
-    
+    [SerializeField] public List<GameObject> terrainReferences = new List<GameObject>();
+    [SerializeField] public List<Color> terrainColorReferences = new List<Color>();
+
     private Color[,,] color;
     private Pixel[,,] pixels;
     private int differentMeshes = 0;
@@ -103,19 +113,58 @@ public class VoxelToolWindow : EditorWindow
 
     public List<Color> palette = new List<Color>();
 
-    [MenuItem("Window/VoxelTool")]
+    [MenuItem("Window/VoxelTool &a")]
     static void OpenWindow()
     {
-        VoxelToolWindow window = (VoxelToolWindow)GetWindow(typeof(VoxelToolWindow));
-        
-        window.titleContent = new GUIContent("VoxelTool");
+        window = (VoxelToolWindow)GetWindow(typeof(VoxelToolWindow));
+
+        window.titleContent = new GUIContent("Voxel Tool");
         window.minSize = new Vector2(450, 200);
         window.Show();
+        window.Focus();
+        presetTarget[0] = window;
+        root = window.rootVisualElement;
+
+        SetRoot();
     }
+    static void newGUI()
+    {
+        if (EditorWindow.focusedWindow == window)
+            rect = EditorWindow.focusedWindow.rootVisualElement.layout;
+        else
+            rect = root.layout;
+
+
+        GUILayout.Box(new GUIContent("Voxel Tool"), GUILayout.ExpandWidth(true), GUILayout.Height(20));
+        PresetSelector.DrawPresetButton(new Rect(new Vector2(rect.position.x + rect.width - 20, 2), new Vector2(10,10)), presetTarget);
+    }
+    static void SetRoot()
+    {
+        IMGUIContainer container = new IMGUIContainer();
+        root.Add(container);
+
+        container.name = "VoxelToolWindow";
+
+        container.StretchToParentSize();
+        container.AddToClassList("unity-imgui-container");
+
+        rect = EditorWindow.focusedWindow.rootVisualElement.layout;
+
+        Action GUIHandler = newGUI;
+        container.onGUIHandler = GUIHandler;
+    }
+
+
     private void OnGUI()
     {
+        currentColor = GUI.color;
+
+        GUILayout.Space(20);
+
+        GUI.color = Color.cyan;
         GUILayout.Label("Input", EditorStyles.boldLabel);
-     
+        GUI.color = currentColor;
+
         #region Input
         EditorGUILayout.BeginVertical();
 
@@ -149,8 +198,9 @@ public class VoxelToolWindow : EditorWindow
         #endregion 
 
         GUILayout.Space(20);
+        GUI.color = Color.cyan;
         GUILayout.Label("Output", EditorStyles.boldLabel);
-        
+        GUI.color = currentColor;
         outputName = EditorGUILayout.TextField("Output Name", outputName);
 
         #region Output
@@ -170,8 +220,9 @@ public class VoxelToolWindow : EditorWindow
         #endregion 
 
         GUILayout.Space(20);
+        GUI.color = Color.cyan;
         GUILayout.Label("Unique Objects", EditorStyles.boldLabel);
-        
+        GUI.color = currentColor;
         #region Unique Objects
         EditorGUILayout.BeginHorizontal();
 
@@ -255,8 +306,9 @@ public class VoxelToolWindow : EditorWindow
         #endregion
 
         GUILayout.Space(20);
+        GUI.color = Color.cyan;
         GUILayout.Label("Terrain", EditorStyles.boldLabel);
-
+        GUI.color = currentColor;
         #region Terrain
         EditorGUILayout.BeginHorizontal();
 
@@ -417,7 +469,7 @@ public class VoxelToolWindow : EditorWindow
                         {
 
                             //Instantiate
-                            GameObject go = Instantiate(uniqueObjectsReferences[l], pixels[i, j, k].position, Quaternion.identity, uniqueObjectParent.transform);
+                            GameObject go = Instantiate(uniqueObjectsReferences[l], pixels[i, j, k].position, uniqueObjectsReferences[l].transform.rotation, uniqueObjectParent.transform);
 
                             //Disable this pixel from being checked in the future
                             input[i, j, k].pixelColor = Color.clear;
